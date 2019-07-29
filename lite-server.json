@@ -1,0 +1,8 @@
+{
+	"port": 8008,
+	"files": ["./example/**/*.{html,htm,css,js}"],
+	"server": {
+		"baseDir": "./example"
+	},
+	"ghostMode": false
+}
