@@ -50,7 +50,7 @@ export function observeModel<
 		 *  putting the document (in its current state)
 		 * in pouchDB
 		 */
-		__toPouch() {
+		saveToPouch() {
 			return new Promise(async (resolve, reject) => {
 				this.__next = async () => {
 					const document = this.toJSON();
@@ -81,7 +81,7 @@ export function observeModel<
 				if (this.__ignoreObserver) {
 					return;
 				}
-				this.__toPouch();
+				this.saveToPouch();
 			});
 
 			setInterval(async () => {
