@@ -1,4 +1,4 @@
-import { Model, observeModel, SubModel } from "../src";
+import { Model, observeModel, Schema, SubModel } from "../src";
 import { observable } from "mobx";
 
 export interface ChildSchema {
@@ -6,8 +6,7 @@ export interface ChildSchema {
 	toys: string[];
 }
 
-export interface EmployeeSchema {
-	_id: string;
+export interface EmployeeSchema extends Schema {
 	name: string;
 	age: number;
 	canAccess: boolean;

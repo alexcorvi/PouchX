@@ -40,7 +40,8 @@ What you'll get is a synchronization between MobX and PouchDB. As soon as your m
 First you have to write your **schema**, the schema is a typescript `interface` that represents (to some extent) how your document will be stored in CouchDB/PouchDB:
 
 ```typescript
-interface CarSchema {
+import { Schema } from "pouchx";
+interface CarSchema extends Schema {
 	_id: string;
 	make: string;
 	model: string;
@@ -48,8 +49,8 @@ interface CarSchema {
 	drivers: DriverSchema[];
 }
 
+// no need for extending schema here
 interface DriverSchema {
-	// no need for defining _id here
 	name: string;
 	age: number;
 }
