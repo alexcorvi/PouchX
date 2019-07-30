@@ -18,10 +18,14 @@ npm install pouchx
 
 ## Introduction & Basic Concepts
 
--   what's good about MobX? it's reactive! and it's easy to make it in sync with your react views.
+-   what's good about MobX? it's reactive! and it's easy to make it in sync with your React views.
 -   what's bad about it? making it synchronized with PouchDB.
 
-I faced this issue while developing [apexo](https://apexo.app), in which I designed my application to be an offline-first application, where the data can live in three places: a remote (on the server) CouchDB, a local (on the browser) PouchDB, and a MobX state which would be displayed (through react) to the user. I had to re-write the code (that mother flippin' buggy code) that glues those three layers of data a couple of times until I decided to rewrite it once and for all in this library.
+I faced this issue while developing [apexo](https://apexo.app), in which I designed my application to be an offline-first application, where the data can live in three places: a remote CouchDB (on the server), a local PouchDB (on the browser), and a MobX state which would be displayed (through React) to the user. I had to re-write the code (that mother flippin' buggy code) that glues those three layers of data a couple of times until I decided to rewrite it once and for all in this library.
+
+Using this library, all you have to do is to supply a PouchDB database instance and to make your classes extending the classes that the library offers.
+
+What you'll get is a synchronization between MobX and PouchDB. As soon as your model (document) or store changes in MobX your PouchDB database will also change, and vice versa.
 
 ### How to write and structure your data
 
@@ -210,4 +214,4 @@ export const cars = new Cars({ model: Car, DBInstance: carsDB });
 
 Usually, you'll only need the store API to read/write to your data through MobX.
 
-> License: The MIT License (MIT) - Copyright (c) 2017 Alex Corvi
+> License: The MIT License (MIT) - Copyright (c) 2019 Alex Corvi
