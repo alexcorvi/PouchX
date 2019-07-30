@@ -27,7 +27,7 @@ Using this library, all you have to do is to supply a PouchDB database instance 
 
 What you'll get is a synchronization between MobX and PouchDB. As soon as your model (document) or store changes in MobX your PouchDB database will also change, and vice versa.
 
-### How to write and structure your data
+## How to write and structure your data
 
 -   Let's say we have a database called `cars`
 -   This database contains cars, with details about those cars.
@@ -67,13 +67,15 @@ import { observable, computed } from "mobx";
  *
  * The Main Model
  *
- * using "@observeModel" decorator, the library will observe the data
+ * A javascript class that analogizes PouchDB document.
+ *
+ * "@observeModel" decorator, the library will observe the data
  * in this model and make changes to PouchDB when it's changed
  *
- * using the "extends Model<CarSchema>" the model will inherit properties
+ * "extends Model<CarSchema>", the model will inherit properties
  * that will make the magic work
  *
- * using "implements CarSchema" (though optional) will help you not to forget
+ * "implements CarSchema", (though optional) will help you not to forget
  * to write some of your props defined in the CarSchema
  **/
 @observeModel
@@ -133,9 +135,9 @@ export class Car extends Model<CarSchema> implements CarSchema {
  * the library is already observing this model as it's a sub model/child
  * of the above main model
  *
- * using the "extends Model<CarSchema>" the model is optional
+ * "extends Model<CarSchema>", is optional
  *
- * using "implements CarSchema" is also optional
+ * "implements CarSchema", is also optional
  **/
 export class Driver extends SubModel<DriverSchema> implements DriverSchema {
 	@observable name: string = "";
@@ -164,7 +166,7 @@ export class Driver extends SubModel<DriverSchema> implements DriverSchema {
 
 #### Store
 
-The store is typescript (javascript) class that analogizes the database in PouchDB and is used by Mobx.
+The store is typescript (javascript) class that analogizes the database in PouchDB and is used directly by your React app.
 
 ```typescript
 import { Store } from "pouchx";
@@ -192,7 +194,7 @@ export class Cars extends Store<CarSchema, Car> {
 }
 ```
 
-### Usage
+## Usage
 
 To be able to use our Store, we have to create an instance of it, and the instance must be supplied with an _instance of the PouchDB database_ and the main model class.
 
@@ -204,6 +206,8 @@ export const cars = new Cars({ model: Car, DBInstance: carsDB });
 ```
 
 #### Store API
+
+You will access those directly in your React app.
 
 -   `cars.docs`: is a _readonly_ property that has all documents in the store, sorted by the given sort function.
 -   `cars.selectedID`: set this property to a specific ID and you'll have the document in `cars.selectedDoc`.
