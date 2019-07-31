@@ -9,6 +9,7 @@
 		"build-example": "./node_modules/.bin/webpack --mode development --config ./webpack.js --watch",
 		"serve-example": "./node_modules/.bin/lite-server -c lite-server.json",
 		"start-example": "./node_modules/.bin/concurrently --kill-others \"npm run build-example\" \"npm run serve-example\"",
+		"prepublishOnly": "jest",
 		"test": "jest"
 	},
 	"keywords": [
