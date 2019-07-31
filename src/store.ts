@@ -128,6 +128,15 @@ export abstract class Store<
 		for (let index = 0; index < toAdd.length; index++) {
 			const id = toAdd[index];
 			const row = pouchDBDocs.find(x => x.id === id);
+			// solving a pouchDB/couchDB bug
+			// where documents keeps reappearing
+			const docHasBeenDeleted = this.__list.find(
+				d => d._id === id && d._deleted === true
+			);
+			if (docHasBeenDeleted) {
+				await this.delete(id);
+				continue;
+			}
 			const pouchdbItem = await this.__DBInstance.get(row!.id);
 			const mobxItem = new this.__model(this.__DBInstance);
 			mobxItem.__ignoreObserver = true;
