@@ -52,7 +52,7 @@ describe("# Model", () => {
 			const employee = employees.new();
 			const rev = Math.random().toString();
 			db.setNextRev(rev);
-			await (employee as any).toPouch();
+			await (employee as any).saveToPouch();
 			expect(db.get).toBeCalledWith(employee._id);
 			expect(db.put).toBeCalled();
 			expect(employee._rev).toBe(rev);
@@ -73,13 +73,13 @@ describe("# Model", () => {
 				}
 			]
 		});
-		(employee as any).toPouch = jest.fn(async () => {});
+		(employee as any).saveToPouch = jest.fn(async () => {});
 
 		describe("ignore", () => {
 			it("should ignore when type isn't an update", done => {
 				(employee as any).newProp = "new prop";
 				setTimeout(() => {
-					expect((employee as any).toPouch).toBeCalledTimes(0);
+					expect((employee as any).saveToPouch).toBeCalledTimes(0);
 					done();
 				}, 1500);
 			});
@@ -87,7 +87,7 @@ describe("# Model", () => {
 			it("should ignore when type starts with _", done => {
 				employee._rev = "some new _rev";
 				setTimeout(() => {
-					expect((employee as any).toPouch).toBeCalledTimes(0);
+					expect((employee as any).saveToPouch).toBeCalledTimes(0);
 					done();
 				}, 1500);
 			});
@@ -97,7 +97,7 @@ describe("# Model", () => {
 				employee.canAccess = false;
 				employee.__ignoreObserver = false;
 				setTimeout(() => {
-					expect((employee as any).toPouch).toBeCalledTimes(0);
+					expect((employee as any).saveToPouch).toBeCalledTimes(0);
 					done();
 				}, 1500);
 			});
@@ -107,7 +107,7 @@ describe("# Model", () => {
 			it("should observe direct props", done => {
 				employee.age = employee.age + 1;
 				setTimeout(() => {
-					expect((employee as any).toPouch).toBeCalledTimes(1);
+					expect((employee as any).saveToPouch).toBeCalledTimes(1);
 					done();
 				}, 1500);
 			});
@@ -115,7 +115,7 @@ describe("# Model", () => {
 			it("should observe deeply nested props", done => {
 				employee.children[0].toys[0] = "changed";
 				setTimeout(() => {
-					expect((employee as any).toPouch).toBeCalledTimes(2);
+					expect((employee as any).saveToPouch).toBeCalledTimes(2);
 					done();
 				}, 1500);
 			});

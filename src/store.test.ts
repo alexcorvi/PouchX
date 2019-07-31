@@ -120,18 +120,12 @@ describe("# Store", () => {
 			const _rev = Math.random().toString();
 			db.setNextRev(_rev);
 			employees.delete(id, true);
-			// db.get called
-			expect(db.get).toBeCalledWith(id);
+			// db.get not called
+			expect(db.get).not.toBeCalledWith(id);
 			setTimeout(() => {
 				// db.remove called
 				expect(db.remove).toBeCalledTimes(0);
-				// and we have the correct _rev
-				expect(
-					(employees as any).__list.find(
-						(x: any) => x._id === doc._id
-					)!._rev
-				).toBe(_rev);
-				// and the document is not have the _deleted prop
+				// and the document have the _deleted prop
 				expect(
 					(employees as any).__list.find(
 						(x: any) => x._id === doc._id
