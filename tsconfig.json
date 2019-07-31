@@ -1,12 +1,11 @@
 {
 	"compilerOptions": {
 		"outDir": "./dist/",
-		"sourceMap": true,
 		"noImplicitAny": true,
 		"strictNullChecks": true,
-		"module": "esnext",
+		"module": "es2015",
 		"moduleResolution": "node",
-		"target": "es6",
+		"target": "es5",
 		"jsx": "react",
 		"experimentalDecorators": true,
 		"forceConsistentCasingInFileNames": true,
