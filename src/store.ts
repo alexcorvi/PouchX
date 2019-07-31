@@ -134,7 +134,13 @@ export abstract class Store<
 				d => d._id === id && d._deleted === true
 			);
 			if (docHasBeenDeleted) {
-				await this.delete(id);
+				// must be wrapped in a try/catch
+				// since the last time we delete it
+				// it will throw an error telling us
+				// that it has been already deleted
+				try {
+					await this.delete(id);
+				} catch (e) {}
 				continue;
 			}
 			const pouchdbItem = await this.__DBInstance.get(row!.id);
