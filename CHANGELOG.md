@@ -9,3 +9,7 @@
 ### 1.0.2
 
 -   Better build.
+
+### 1.0.3
+
+-   Target es6 only.

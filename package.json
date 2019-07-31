@@ -1,6 +1,6 @@
 {
 	"name": "pouchx",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Seamless synchronization between MobX and PouchDB",
 	"main": "dist/lib/index.js",
 	"types": "dist/lib/index.d.ts",
