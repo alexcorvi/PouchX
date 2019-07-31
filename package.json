@@ -1,19 +1,18 @@
 {
 	"name": "pouchx",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Seamless synchronization between MobX and PouchDB",
-	"main": "dist/src/index.js",
-	"types": "dist/src/index.d.ts",
+	"main": "dist/lib/index.js",
 	"types": "dist/lib/index.d.ts",
 	"files": [
 		"/dist/lib"
 	],
 	"scripts": {
-		"build": "./node_modules/.bin/tsc",
+		"build": "rm -rf ./dist && ./node_modules/.bin/tsc && rm -rf ./dist/example && rm -rf ./dist/mocks && mv ./dist/src/ ./dist/lib",
 		"build-example": "./node_modules/.bin/webpack --mode development --config ./webpack.js --watch",
 		"serve-example": "./node_modules/.bin/lite-server -c lite-server.json",
 		"start-example": "./node_modules/.bin/concurrently --kill-others \"npm run build-example\" \"npm run serve-example\"",
-		"prepublishOnly": "jest",
+		"prepublishOnly": "yarn run build && jest",
 		"test": "jest"
 	},
 	"keywords": [
