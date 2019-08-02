@@ -185,7 +185,7 @@ export class Cars extends Store<CarSchema, Car> {
 	// so you would delete related documents in other database
 	// if you don't have such related documents
 	// you can leave it empty like this
-	async deleteAccessories(id: string, mobxOnly: boolean) {}
+	async deleteAccessories(doc: Car, mobxOnly: boolean) {}
 
 	// required, a function that will be used as a default
 	// to sort documents in this store.

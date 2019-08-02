@@ -94,7 +94,7 @@ describe("# Store", () => {
 					)!._deleted
 				).toBe(true);
 				// and don't forget the accessories
-				expect(employees.deleteAccessories).toBeCalledWith(id, false);
+				expect(employees.deleteAccessories).toBeCalledWith(doc, false);
 				done();
 			}, 100);
 		});
@@ -132,7 +132,7 @@ describe("# Store", () => {
 					)!._deleted
 				).toBe(true);
 				// and don't forget the accessories
-				expect(employees.deleteAccessories).toBeCalledWith(id, true);
+				expect(employees.deleteAccessories).toBeCalledWith(doc, true);
 				done();
 			}, 100);
 		});

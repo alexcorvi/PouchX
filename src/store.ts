@@ -51,11 +51,12 @@ export abstract class Store<
 				)).rev;
 			}
 			this.__list[index]._deleted = true;
+
 			// adding and deleting an item so the computed value updates
 			this.__list.push(this.new());
-			this.__list.splice(this.__list.length - 1, 1);
+			const deletedItem = this.__list.splice(this.__list.length - 1, 1);
 
-			await this.deleteAccessories(id, mobxOnly);
+			await this.deleteAccessories(this.__list[index], mobxOnly);
 		} else {
 			transactionError(
 				"can not delete document",
@@ -66,7 +67,10 @@ export abstract class Store<
 		}
 	}
 
-	abstract deleteAccessories(id: string, justOnMobx: boolean): Promise<void>;
+	abstract deleteAccessories(
+		item: SpecificModel,
+		justOnMobx: boolean
+	): Promise<void>;
 
 	// ---------------
 	// Addition
