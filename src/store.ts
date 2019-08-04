@@ -58,6 +58,7 @@ export abstract class Store<
 
 			await this.deleteAccessories(this.__list[index], mobxOnly);
 		} else {
+		} else if (config.throw.whenDeletingNonExistent) {
 			transactionError(
 				"can not delete document",
 				"document does not exist",
@@ -97,7 +98,7 @@ export abstract class Store<
 			}
 			document.__ignoreObserver = false;
 			return this.__list[newIndex];
-		} else {
+		} else if (config.throw.whenAlreadyExists) {
 			transactionError(
 				"can not add document",
 				"document already exists",
