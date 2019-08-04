@@ -13,3 +13,17 @@
 ### 1.0.3
 
 -   Target es6 only.
+
+### 1.0.4
+
+-   Giving full model as a parameter of `deleteAccessories`
+
+### 1.0.5
+
+-   removed `deleteAccessories` prop
+-   config.throw to configure when should the library throw
+-   hooks: `afterChange`, `afterDelete` & `afterAdd`
+
+### 1.0.6
+
+-   Grabbing documents from pouchDB must be in a descending order
