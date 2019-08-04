@@ -7,7 +7,10 @@ describe("# Store", () => {
 		const db = new DB();
 		const employees = new Employees({
 			model: Employee,
-			DBInstance: db as any
+			DBInstance: db as any,
+			sort: function(a: Employee, b: Employee) {
+				return a.age - b.age;
+			}
 		});
 
 		employees.add(
@@ -40,11 +43,8 @@ describe("# Store", () => {
 			})
 		);
 		expect(employees.docs.length).toBe(3);
-		employees.sort = function(a: Employee, b: Employee) {
-			return a.age - b.age;
-		};
 		const sortA = employees.docs[0].name;
-		employees.sort = function(a: Employee, b: Employee) {
+		(employees as any).__sort = function(a: Employee, b: Employee) {
 			return b.age - a.age;
 		};
 		const sortB = employees.docs[0].name;
