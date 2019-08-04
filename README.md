@@ -180,18 +180,18 @@ import { Store } from "pouchx";
  *
  **/
 export class Cars extends Store<CarSchema, Car> {
-	// required, a function that would be called when
+	// optional, a function that would be called when
 	// an item in this store is deleted.
-	// so you would delete related documents in other database
-	// if you don't have such related documents
-	// you can leave it empty like this
-	async deleteAccessories(doc: Car, mobxOnly: boolean) {}
+	// so you would delete related documents in other databases
+	async afterDelete(doc: Car, mobxOnly: boolean) {}
 
-	// required, a function that will be used as a default
-	// to sort documents in this store.
-	sort(a: Car, b: Car) {
-		return a.make.localeCompare(b.make);
-	}
+	// optional, a function that would be called when
+	// an item in this store has been added.
+	async afterAdd(doc: Car, mobxOnly: boolean) {}
+
+	// optional, a function that would be called when
+	// any item in this store is updated, deleted or added
+	async afterChange() {}
 }
 ```
 
