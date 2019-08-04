@@ -1,8 +1,10 @@
+import { config } from "./config";
 import { Model } from "./model";
 import { Schema } from "./schema";
 import { transactionError } from "./throw";
 import { diff } from "fast-array-diff";
-import { computed, observable } from "mobx";
+import { computed, observable, toJS } from "mobx";
+import { number } from "prop-types";
 
 export abstract class Store<
 	SpecificSchema extends Schema,
@@ -17,6 +19,8 @@ export abstract class Store<
 	private __sort:
 		| ((a: SpecificModel, b: SpecificModel) => number)
 		| undefined;
+
+	private __lastHash: string = "";
 
 	@observable private __list: SpecificModel[] = [];
 
@@ -58,8 +62,7 @@ export abstract class Store<
 			this.__list.push(this.new());
 			const deletedItem = this.__list.splice(this.__list.length - 1, 1);
 
-			await this.deleteAccessories(this.__list[index], mobxOnly);
-		} else {
+			await this.afterDelete(this.__list[index], mobxOnly);
 		} else if (config.throw.whenDeletingNonExistent) {
 			transactionError(
 				"can not delete document",
@@ -69,11 +72,6 @@ export abstract class Store<
 			);
 		}
 	}
-
-	abstract deleteAccessories(
-		item: SpecificModel,
-		justOnMobx: boolean
-	): Promise<void>;
 
 	// ---------------
 	// Addition
@@ -98,6 +96,7 @@ export abstract class Store<
 					document._id
 				))._rev;
 			}
+			await this.afterAdd(this.__list[newIndex], justOnMobx);
 			document.__ignoreObserver = false;
 			return this.__list[newIndex];
 		} else if (config.throw.whenAlreadyExists) {
@@ -110,11 +109,19 @@ export abstract class Store<
 		}
 	}
 
+	async afterDelete(item: SpecificModel, justOnMobx: boolean) {}
+	async afterAdd(item: SpecificModel, justOnMobx: boolean) {}
+
+	async afterChange() {}
+
 	// ---------------
 	// grabbing
 	// ---------------
 	public async updateFromPouch() {
-		let pouchDBDocs = (await this.__DBInstance.allDocs()).rows.filter(
+		let pouchDBDocs = (await this.__DBInstance.allDocs({
+			// setting it descending to the most recent documents gets viewed first
+			descending: true
+		})).rows.filter(
 			// don't include deleted docs
 			// so they can appear to be deleted in this function
 			x => !x.value.deleted
@@ -180,6 +187,11 @@ export abstract class Store<
 				mobxDoc.__ignoreObserver = false;
 			}
 		}
+		const newHash = this.hash(JSON.stringify(this.__list));
+		if (newHash !== this.__lastHash) {
+			await this.afterChange();
+			this.__lastHash = newHash;
+		}
 	}
 
 	private async __init() {
@@ -223,5 +235,18 @@ export abstract class Store<
 		this.__DBInstance = DBInstance;
 		this.__sort = sort;
 		this.__init();
+	}
+
+	private hash(input: string) {
+		var hash = 0;
+		if (input.length == 0) {
+			return hash.toString();
+		}
+		for (var i = 0; i < input.length; i++) {
+			var char = input.charCodeAt(i);
+			hash = (hash << 5) - hash + char;
+			hash = hash & hash;
+		}
+		return hash.toString(32);
 	}
 }

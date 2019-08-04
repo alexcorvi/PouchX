@@ -60,7 +60,7 @@ describe("# Store", () => {
 				model: Employee,
 				DBInstance: db as any
 			});
-			employees.deleteAccessories = jest.fn(employees.deleteAccessories);
+			employees.afterDelete = jest.fn(employees.afterDelete);
 			employees.add(
 				employees.new().fromJSON({
 					name: "a",
@@ -94,7 +94,7 @@ describe("# Store", () => {
 					)!._deleted
 				).toBe(true);
 				// and don't forget the accessories
-				expect(employees.deleteAccessories).toBeCalledWith(doc, false);
+				expect(employees.afterDelete).toBeCalledWith(doc, false);
 				done();
 			}, 100);
 		});
@@ -105,7 +105,7 @@ describe("# Store", () => {
 				model: Employee,
 				DBInstance: db as any
 			});
-			employees.deleteAccessories = jest.fn(employees.deleteAccessories);
+			employees.afterDelete = jest.fn(employees.afterDelete);
 			employees.add(
 				employees.new().fromJSON({
 					name: "a",
@@ -132,7 +132,7 @@ describe("# Store", () => {
 					)!._deleted
 				).toBe(true);
 				// and don't forget the accessories
-				expect(employees.deleteAccessories).toBeCalledWith(doc, true);
+				expect(employees.afterDelete).toBeCalledWith(doc, true);
 				done();
 			}, 100);
 		});
@@ -165,7 +165,7 @@ describe("# Store", () => {
 					expect(db.get).toBeCalledTimes(0);
 					expect(employees.docs[0]._rev).toBe(rev);
 					done();
-				}, 200);
+				}, 500);
 			}, 100);
 		});
 
@@ -196,7 +196,7 @@ describe("# Store", () => {
 					expect(db.get).toBeCalledTimes(1);
 					expect(employees.docs[0]._rev).toBe(rev);
 					done();
-				}, 200);
+				}, 500);
 			}, 100);
 		});
 	});
@@ -293,6 +293,40 @@ describe("# Store", () => {
 					done();
 				}, 100);
 			}, 100);
+		});
+	});
+
+	describe("Hooks are being called", () => {
+		it("after add hook", done => {
+			const db = new DB();
+			const employees = new Employees({
+				model: Employee,
+				DBInstance: db as any
+			});
+
+			employees.afterAdd = jest.fn(employees.afterAdd);
+			employees.add(employees.new());
+			setTimeout(() => {
+				expect(employees.afterAdd).toBeCalled();
+				done();
+			}, 500);
+		});
+		it("after delete hook", async done => {
+			const db = new DB();
+			const employees = new Employees({
+				model: Employee,
+				DBInstance: db as any
+			});
+
+			employees.afterDelete = jest.fn(employees.afterDelete);
+			await employees.add(employees.new());
+			setTimeout(() => {
+				employees.delete((employees as any).__list[0]._id);
+				setTimeout(() => {
+					expect(employees.afterDelete).toBeCalled();
+					done();
+				}, 500);
+			}, 500);
 		});
 	});
 });
