@@ -14,6 +14,10 @@ export abstract class Store<
 
 	private __DBInstance: PouchDB.Database<SpecificSchema>;
 
+	private __sort:
+		| ((a: SpecificModel, b: SpecificModel) => number)
+		| undefined;
+
 	@observable private __list: SpecificModel[] = [];
 
 	@observable public selectedID: string = "";
@@ -22,10 +26,8 @@ export abstract class Store<
 	}
 
 	@computed public get docs(): SpecificModel[] {
-		return this.__list.filter(x => !x._deleted).sort(this.sort);
+		return this.__list.filter(x => !x._deleted).sort(this.__sort);
 	}
-
-	abstract sort(a: SpecificModel, b: SpecificModel): number;
 
 	public new(json?: SpecificSchema) {
 		const newModel = new this.__model(this.__DBInstance);
@@ -208,15 +210,18 @@ export abstract class Store<
 
 	constructor({
 		model,
-		DBInstance
+		DBInstance,
+		sort
 	}: {
 		model: new (
 			DBInstance: PouchDB.Database<SpecificSchema>
 		) => SpecificModel;
 		DBInstance: PouchDB.Database<SpecificSchema>;
+		sort?: (a: SpecificModel, b: SpecificModel) => number;
 	}) {
 		this.__model = model;
 		this.__DBInstance = DBInstance;
+		this.__sort = sort;
 		this.__init();
 	}
 }
