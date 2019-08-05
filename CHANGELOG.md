@@ -27,3 +27,7 @@
 ### 1.0.6
 
 -   Grabbing documents from pouchDB must be in a descending order
+
+### 1.0.7
+
+-   Added ability to manually call Model.saveToPouch
