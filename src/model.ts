@@ -33,6 +33,12 @@ export abstract class Model<SpecificSchema extends Schema> implements Schema {
 	abstract fromJSON(jsonDoc: SpecificSchema): Model<SpecificSchema>;
 	abstract toJSON(): SpecificSchema;
 
+	saveToPouch() {
+		// this is just to expose the method
+		// this will actually be overwritten by
+		// the method in the decorator below
+	}
+
 	constructor(DBInstance: PouchDB.Database<SpecificSchema>) {
 		this.__DBInstance = DBInstance;
 	}
