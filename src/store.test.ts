@@ -186,14 +186,14 @@ describe("# Store", () => {
 						canAccess: true,
 						children: []
 					}),
-					true
+					rev
 				);
 
 				expect(employees.docs.length).toBe(1);
 				expect(employees.docs[0].name).toBe("Alex");
 				expect(db.put).toBeCalledTimes(0);
 				setTimeout(() => {
-					expect(db.get).toBeCalledTimes(1);
+					expect(db.get).toBeCalledTimes(0);
 					expect(employees.docs[0]._rev).toBe(rev);
 					done();
 				}, 500);

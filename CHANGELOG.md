@@ -31,3 +31,7 @@
 ### 1.0.7
 
 -   Added ability to manually call Model.saveToPouch
+
+### 1.0.8
+
+-   Improved performance on first connect and documents grab
