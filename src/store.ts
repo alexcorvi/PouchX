@@ -78,25 +78,22 @@ export abstract class Store<
 	// ---------------
 	public async add(
 		document: SpecificModel = this.new(),
-		justOnMobx: false | string = false
+		justOnMobx: boolean = false
 	) {
 		const index = this.__list.findIndex(x => x._id === document._id);
 		if (index === -1) {
 			document.__ignoreObserver = true;
 			document.__DBInstance = this.__DBInstance;
-			// add to list
-			this.__list.push(document);
-			const newIndex = this.__list.findIndex(x => x._id === document._id);
 			// add to pouch
 			if (!justOnMobx) {
 				const res = await this.__DBInstance.put(document.toJSON());
-				this.__list[newIndex]._rev = res.rev;
-			} else {
-				this.__list[newIndex]._rev = justOnMobx;
+				document._rev = res.rev;
 			}
-			await this.afterAdd(this.__list[newIndex], justOnMobx);
+			// add to list
+			this.__list.push(document);
+			await this.afterAdd(document, justOnMobx);
 			document.__ignoreObserver = false;
-			return this.__list[newIndex];
+			return document;
 		} else if (config.throw.whenAlreadyExists) {
 			transactionError(
 				"can not add document",
@@ -107,8 +104,20 @@ export abstract class Store<
 		}
 	}
 
+	private async __bulkAddToMobx(docs: SpecificModel[]) {
+		// prevent duplication
+		docs = docs.filter(
+			doc => !this.__list.find(existing => existing._id === doc._id)
+		);
+		this.__list.push(...docs);
+		await this.afterAdd(docs, true);
+	}
+
 	async afterDelete(item: SpecificModel, justOnMobx: boolean) {}
-	async afterAdd(item: SpecificModel, justOnMobx: false | string) {}
+	async afterAdd(
+		item: SpecificModel | SpecificModel[],
+		justOnMobx: boolean
+	) {}
 
 	async afterChange() {}
 
@@ -127,15 +136,19 @@ export abstract class Store<
 		);
 
 		if (initial) {
+			const mobxDocumentsToAdd: SpecificModel[] = [];
 			pouchDBDocs.forEach(pouchdbItem => {
 				if (pouchdbItem.doc) {
 					const mobxItem = new this.__model(this.__DBInstance);
 					mobxItem.__ignoreObserver = true;
 					mobxItem.fromJSON(pouchdbItem.doc);
+					mobxItem._rev = pouchdbItem.doc._rev;
+					mobxItem.__DBInstance = this.__DBInstance;
 					mobxItem.__ignoreObserver = false;
-					this.add(mobxItem, pouchdbItem.doc._rev);
+					mobxDocumentsToAdd.push(mobxItem);
 				}
 			});
+			this.__bulkAddToMobx(mobxDocumentsToAdd);
 			return;
 		}
 
@@ -149,18 +162,14 @@ export abstract class Store<
 			.sort();
 
 		const diffResult = diff<string>(mobxIndices, pouchDBIndices);
-		const toAdd = diffResult.added;
+		let toAdd = diffResult.added;
 		const toDelete = diffResult.removed;
 
+		// solving a pouchDB/couchDB bug
+		// where documents keeps reappearing
 		for (let index = 0; index < toAdd.length; index++) {
 			const id = toAdd[index];
-			const row = pouchDBDocs.find(x => x.id === id);
-			// solving a pouchDB/couchDB bug
-			// where documents keeps reappearing
-			const docHasBeenDeleted = this.__list.find(
-				d => d._id === id && d._deleted === true
-			);
-			if (docHasBeenDeleted) {
+			if (this.__list.find(d => d._id === id && d._deleted === true)) {
 				// must be wrapped in a try/catch
 				// since the last time we delete it
 				// it will throw an error telling us
@@ -168,14 +177,31 @@ export abstract class Store<
 				try {
 					await this.delete(id);
 				} catch (e) {}
-				continue;
+				toAdd[index] = "";
 			}
-			const pouchdbItem = await this.__DBInstance.get(row!.id);
-			const mobxItem = new this.__model(this.__DBInstance);
-			mobxItem.__ignoreObserver = true;
-			mobxItem.fromJSON(pouchdbItem);
-			mobxItem.__ignoreObserver = false;
-			await this.add(mobxItem, pouchdbItem._rev);
+		}
+		toAdd = toAdd.filter(x => x.length);
+
+		if (toAdd.length) {
+			const documentsToAdd = (await this.__DBInstance.allDocs({
+				include_docs: true,
+				keys: toAdd
+			})).rows.map(x => x.doc);
+			const mobxItems = [];
+			for (let index = 0; index < documentsToAdd.length; index++) {
+				const pouchdbItem = documentsToAdd[index];
+				if (pouchdbItem) {
+					const mobxItem = new this.__model(this.__DBInstance);
+					mobxItem.__ignoreObserver = true;
+					mobxItem.fromJSON(pouchdbItem);
+					mobxItem._rev = pouchdbItem._rev;
+					mobxItem.__DBInstance = this.__DBInstance;
+					mobxItem.__ignoreObserver = false;
+					mobxItems.push(mobxItem);
+				}
+			}
+
+			this.__bulkAddToMobx(mobxItems);
 		}
 
 		for (let index = 0; index < toDelete.length; index++) {
@@ -214,7 +240,7 @@ export abstract class Store<
 				since: "now",
 				live: true,
 				include_docs: true,
-				limit: 1
+				limit: 100
 			})
 			.on("change", async () => {
 				this.updateFromPouch();

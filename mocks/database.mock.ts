@@ -23,6 +23,14 @@ export class DB {
 				rev: string;
 				deleted?: boolean;
 			};
+			doc: {
+				_id: string;
+				_rev: string;
+				age: number;
+				canAccess: boolean;
+				children: any[];
+				name: string;
+			};
 		}[]
 	) {
 		this.nextRows.rows = rows;

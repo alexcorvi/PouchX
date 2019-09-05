@@ -35,3 +35,7 @@
 ### 1.0.8
 
 -   Improved performance on first connect and documents grab
+
+### 1.0.9
+
+-   Improved performance by dealing with bulks of documents

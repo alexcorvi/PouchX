@@ -1,3 +1,4 @@
+import { benchmarkAdding } from "./benchmark";
 import { employees } from "./data";
 import { Child } from "../mocks";
 import { toJS } from "mobx";
@@ -8,7 +9,22 @@ import * as ReactDOM from "react-dom";
 const App = observer(() => (
 	<main>
 		<h1>Example application</h1>
-		<div style={{ width: "50%", float: "left" }}>
+		<button
+			onClick={() => {
+				benchmarkAdding();
+			}}
+		>
+			Benchmark Adding
+		</button>
+		<div
+			style={{
+				width: "40%",
+				float: "left",
+				height: 400,
+				overflowY: "scroll",
+				border: "5px solid"
+			}}
+		>
 			<ul>
 				{employees.docs.map(employee => (
 					<li
@@ -40,7 +56,15 @@ const App = observer(() => (
 			</button>
 		</div>
 		{employees.selectedDoc ? (
-			<div style={{ width: "50%", float: "left" }}>
+			<div
+				style={{
+					width: "40%",
+					float: "left",
+					height: 400,
+					overflowY: "scroll",
+					border: "5px solid"
+				}}
+			>
 				<p>Name: </p>
 				<input
 					id="name"
