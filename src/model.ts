@@ -1,6 +1,7 @@
 import { config } from "./config";
 import { deepObserve } from "./deep-observe";
 import { Schema } from "./schema";
+import isEqual from "lodash.isequal";
 
 export abstract class SubModel<SpecificSchema> {
 	abstract toJSON(): SpecificSchema;
@@ -59,11 +60,18 @@ export function observeModel<
 		saveToPouch() {
 			return new Promise(async (resolve, reject) => {
 				this.__next = async () => {
-					const document = this.toJSON();
-					const doc = await this.__DBInstance.get(this._id);
-					(document as any)._rev = doc._rev;
-					const response = await this.__DBInstance.put(document, {
-						force: true
+					const newDoc = this.toJSON();
+					const oldDoc = await this.__DBInstance.get(this._id);
+					(newDoc as any)._rev = oldDoc._rev;
+
+					if (isEqual(oldDoc, newDoc)) {
+						// prevent duplicates & conflicts
+						resolve({});
+						return;
+					}
+
+					const response = await this.__DBInstance.put(newDoc, {
+						force: true,
 					});
 					this._rev = response.rev;
 					resolve(response);
@@ -75,7 +83,7 @@ export function observeModel<
 		constructor(...args: any[]) {
 			super(...args);
 
-			deepObserve(this, change => {
+			deepObserve(this, (change) => {
 				// ignore internal changes
 				if (
 					(change as any).name &&

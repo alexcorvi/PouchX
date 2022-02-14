@@ -39,3 +39,7 @@
 ### 1.0.9
 
 -   Improved performance by dealing with bulks of documents
+
+### 1.0.10
+
+-   Avoid duplicates
